@@ -1,0 +1,26 @@
+{% csrf_token %}
+
+{% for field in form %}
+  <div class="mb-3">
+    <label class="form-label"
+           for="{{ field.id_for_label }}">{{ field.label }}</label>
+    <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" maxlength="150"
+           class="form-control {% if field.errors %}is-invalid{% else %}is-valid{% endif %}"
+           placeholder="{{ field.label }}"
+        {% if field.name == 'username' %} autofocus="" {% endif %}
+        {% if field.value %} value="{{ field.value }}"{% endif %}
+           required="" id="{{ field.id_for_label }}">
+    {% if field.help_text %}
+      <small class="form-text text-muted">{{ field.help_text }}</small>
+    {% endif %}
+    {% if field.errors %}
+      <ul class="list-unstyled">
+        {% for error in field.errors %}
+          <li class="text-danger">{{ error }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+  </div>
+{% endfor %}
+<button class="btn btn-primary" type="submit">{{ action }}</button>
+
