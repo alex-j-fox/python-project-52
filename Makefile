@@ -34,6 +34,6 @@ lint:
 	poetry run flake8 task_manager --exclude=*migrations/
 
 test:
-	pytest task_manager
+	poetry run pytest task_manager
 
 check: selfcheck lint test
