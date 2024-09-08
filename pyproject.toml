@@ -21,6 +21,7 @@ whitenoise = {extras = ["brotli"], version = "^6.7.0"}
 flake8 = "^6.0.0"
 pytest = "^7.2.1"
 pytest-cov = "^5.0.0"
+pytest-django = "^4.9.0"
 
 
 
