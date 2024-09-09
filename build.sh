@@ -13,5 +13,5 @@ make migrate
 
 if [[ $CREATE_SUPERUSER ]];
 then
-  python task_manager/manage.py createsuperuser --no-input
+  python python-project-52/manage.py createsuperuser --no-input
 fi
