@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-08 19:38+0000\n"
+"POT-Creation-Date: 2024-09-20 09:09+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,90 +20,79 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: task_manager/users/forms.py:12 task_manager/users/forms.py:41
-#: task_manager/users/forms.py:49 task_manager/users/models.py:8
-#: templates/users/index.html:12
-msgid "Username"
-msgstr "Имя пользователя"
+#: task_manager/context_processors.py:7 templates/users/index.html:7
+msgid "Users"
+msgstr "Пользователи"
 
-#: task_manager/users/forms.py:13 task_manager/users/models.py:10
-msgid ""
-"Required field. No more than 150 characters. Only letters, numbers and "
-"symbols @/./+/-/_."
-msgstr ""
-"Обязательное поле. Не более 150 символов. Только буквы, цифры и символы @/./"
-"+/-/_."
+#: task_manager/context_processors.py:14
+msgid "Statuses"
+msgstr "Статусы"
 
-#: task_manager/users/forms.py:17 task_manager/users/forms.py:59
-#: task_manager/users/forms.py:65 task_manager/users/models.py:14
-msgid "Password"
-msgstr "Пароль"
+#: task_manager/context_processors.py:20 task_manager/labels/apps.py:8
+msgid "Labels"
+msgstr "Метки"
 
-#: task_manager/users/forms.py:18 task_manager/users/models.py:15
-msgid "Your password must contain at least 3 characters."
-msgstr "Ваш пароль должен содержать как минимум 3 символа."
+#: task_manager/context_processors.py:26
+msgid "Tasks"
+msgstr "Задачи"
 
-#: task_manager/users/forms.py:22 task_manager/users/models.py:19
-msgid "Password confirmation"
-msgstr "Подтверждение пароля"
+#: task_manager/context_processors.py:32
+msgid "Wellcome"
+msgstr "Добро пожаловать"
 
-#: task_manager/users/forms.py:23 task_manager/users/models.py:20
-msgid "To confirm, please enter your password again."
-msgstr "Для подтверждения введите, пожалуйста, пароль ещё раз."
+#: task_manager/context_processors.py:37
+msgid "Logout"
+msgstr "Выход"
 
-#: task_manager/users/forms.py:25 task_manager/users/models.py:22
-msgid "First name"
-msgstr "Имя"
+#: task_manager/context_processors.py:45 templates/login.html:6
+msgid "Login"
+msgstr "Вход"
 
-#: task_manager/users/forms.py:26 task_manager/users/models.py:23
-msgid "Last name"
-msgstr "Фамилия"
-
-#: task_manager/users/forms.py:54
-msgid "Please enter your username."
-msgstr ""
-
-#: task_manager/users/forms.py:55
-msgid "Please enter a valid username."
-msgstr ""
-
-#: task_manager/users/models.py:24 templates/users/index.html:14
-msgid "Created at"
-msgstr "Дата создания"
-
-#: task_manager/users/views.py:22 templates/includes/navbar.html:55
+#: task_manager/context_processors.py:51 task_manager/users/views.py:38
 msgid "Registration"
 msgstr "Регистрация"
 
-#: task_manager/users/views.py:23
-msgid "Register"
-msgstr "Зарегистрировать"
+#: task_manager/users/forms.py:36
+msgid "A user with that username already exists."
+msgstr ""
 
-#: task_manager/users/views.py:37
+#: task_manager/users/mixins.py:19
+msgid "You are not authorized! Please log in."
+msgstr "Вы не авторизованы! Пожалуйста, выполните вход."
+
+#: task_manager/users/mixins.py:22
+msgid "You don't have permission to change other user"
+msgstr "У вас нет прав для изменения другого пользователя."
+
+#: task_manager/users/views.py:30
 msgid "User successfully registered"
 msgstr "Пользователь успешно зарегистрирован"
 
-#: task_manager/users/views.py:49
-msgid "Change user"
-msgstr "Изменение пользователя"
+#: task_manager/users/views.py:39
+msgid "Register"
+msgstr "Зарегистрировать"
 
-#: task_manager/users/views.py:50
-msgid "Change"
-msgstr "Изменить"
-
-#: task_manager/users/views.py:71
+#: task_manager/users/views.py:48
 msgid "User successfully updated"
 msgstr "Пользователь успешно изменен"
 
-#: task_manager/users/views.py:96
+#: task_manager/users/views.py:55
+msgid "Change user"
+msgstr "Изменение пользователя"
+
+#: task_manager/users/views.py:56
+msgid "Change"
+msgstr "Изменить"
+
+#: task_manager/users/views.py:64
 msgid "User successfully deleted"
 msgstr "Пользователь успешно удален"
 
-#: task_manager/views.py:21
+#: task_manager/views.py:15
 msgid "You are logged in"
 msgstr "Вы залогинены"
 
-#: task_manager/views.py:29
+#: task_manager/views.py:28
 msgid "You are logged out"
 msgstr "Вы разлогинены"
 
@@ -111,25 +100,27 @@ msgstr "Вы разлогинены"
 msgid "Task manager Hexlet"
 msgstr "Менеджер задач Хекслет"
 
-#: templates/errors/404.html:6
+#: templates/errors/404.html:8
 msgid "Page not found"
 msgstr "Страница не найдена"
 
-#: templates/errors/404.html:7
+#: templates/errors/404.html:9
 msgid ""
 "The page you were looking for could not be found. It may not exist or may "
 "have been deleted."
-msgstr "Страница, которую вы искали, не найдена. Возможно, он не существует или была удалена"
+msgstr ""
+"Страница, которую вы искали, не найдена. Возможно, он не существует или была "
+"удалена"
 
-#: templates/errors/404.html:8 templates/errors/500.html:8
+#: templates/errors/404.html:10 templates/errors/500.html:10
 msgid "Home"
 msgstr "На главную"
 
-#: templates/errors/500.html:6
+#: templates/errors/500.html:8
 msgid "Server error"
 msgstr "Ошибка сервера"
 
-#: templates/errors/500.html:7
+#: templates/errors/500.html:9
 msgid "The server encountered an error. Please try again later."
 msgstr "На сервере произошла ошибка. Пожалуйста, повторите попытку позже."
 
@@ -137,37 +128,9 @@ msgstr "На сервере произошла ошибка. Пожалуйст�
 msgid "Hexlet"
 msgstr "Хекслет"
 
-#: templates/includes/navbar.html:5
+#: templates/includes/navbar.html:6
 msgid "Task manager"
 msgstr "Менеджер задач"
-
-#: templates/includes/navbar.html:14 templates/users/index.html:7
-msgid "Users"
-msgstr "Пользователи"
-
-#: templates/includes/navbar.html:22
-msgid "Statuses"
-msgstr "Статусы"
-
-#: templates/includes/navbar.html:25
-msgid "Labels"
-msgstr "Метки"
-
-#: templates/includes/navbar.html:28
-msgid "Tasks"
-msgstr "Задачи"
-
-#: templates/includes/navbar.html:35
-msgid "Wellcome"
-msgstr "Добро пожаловать"
-
-#: templates/includes/navbar.html:43
-msgid "Logout"
-msgstr "Выход"
-
-#: templates/includes/navbar.html:52 templates/login.html:7
-msgid "Login"
-msgstr "Вход"
 
 #: templates/index.html:12
 msgid "Hello from Hexlet!"
@@ -181,7 +144,7 @@ msgstr "Практические курсы по программировани�
 msgid "Learn more"
 msgstr "Узнать больше"
 
-#: templates/login.html:24
+#: templates/login.html:10
 msgid "Sign in"
 msgstr "Войти"
 
@@ -193,32 +156,30 @@ msgstr "Удаление пользователя"
 msgid "Are you sure you want to delete"
 msgstr "Вы уверены, что хотите удалить"
 
-#: templates/users/delete.html:11
+#: templates/users/delete.html:12
 msgid "Yes, delete"
 msgstr "Да, удалить"
 
-#: templates/users/index.html:11
+#: templates/users/index.html:12
 msgid "ID"
 msgstr ""
 
 #: templates/users/index.html:13
+msgid "Username"
+msgstr "Имя пользователя"
+
+#: templates/users/index.html:14
 msgid "Full name"
 msgstr "Полное имя"
 
-#: templates/users/index.html:27
+#: templates/users/index.html:15
+msgid "Created at"
+msgstr "Дата создания"
+
+#: templates/users/index.html:28
 msgid "Update"
 msgstr "Изменить"
 
-#: templates/users/index.html:29
+#: templates/users/index.html:30
 msgid "Delete"
 msgstr "Удалить"
-
-#, fuzzy
-#~| msgid "Task manager"
-#~ msgid "Task manager: User"
-#~ msgstr "Менеджер задач"
-
-#, fuzzy
-#~| msgid "Task manager"
-#~ msgid "Task manager: Users"
-#~ msgstr "Менеджер задач"
