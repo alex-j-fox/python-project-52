@@ -1,40 +1,14 @@
-{% extends "base.html" %}
-
-{% load i18n %}
+{% extends 'base.html' %}
+{% load i18n django_bootstrap5 %}
 
 {% block content %}
 
   <h1 class="my-4">{% trans "Login" %}</h1>
-
   <form action="{% url 'login' %}" method="post">
-    
     {% csrf_token %}
-
-    {% for error in form.non_field_errors %}
-      <ul class="list-unstyled">
-          <li class="text-danger">{{ error }}</li>
-      </ul>
-    {% endfor %}
-
-    {% for field in form %}
-      <div class="mb-3">
-        <label class="form-label" for="{{ field.id_for_label }}">
-          {{ field.label }}
-        </label>
-        {{ field }}
-
-        {% if field.errors %}
-          <ul class="list-unstyled">
-
-            {% for error in field.errors %}
-              <li class="text-danger">{{ error }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    {% endfor %}
-
-    <button class="btn btn-primary" type="submit">{% trans "Sign in" %}</button>
+    {% bootstrap_form form %}
+    {% trans "Sign in" as value %}
+    {% bootstrap_button value button_type="submit" %}
   </form>
 
 {% endblock %}

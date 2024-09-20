@@ -4,7 +4,7 @@
 
   <h1 class="my-4">{{ title }}</h1>
   <form action="{% url 'users_create' %}" method="post">
-    {% include 'users/registration_form.html' %}
+    {% include 'form.html' %}
   </form>
 
 {% endblock %}
