@@ -1,51 +1,300 @@
-from django.test import TestCase
+from django.contrib.auth import get_user_model
+from django.test.testcases import TestCase
+from django.urls import reverse
 
-from .models import User
+User = get_user_model()
 
 
-class UserTestCase(TestCase):
+class UserCreateViewTest(TestCase):
+    def test_user_create_view_get(self):
+        """
+        Проверка GET-запроса на странице создания пользователя.
+
+        Страница должна быть доступной (код 200), должен использоваться правильный
+        шаблон (с формой регистрации).
+        """
+        response = self.client.get(reverse('users_create'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/create.html')
+
+    def test_user_create_view_post_valid(self):
+        """
+        Проверка POST-запроса на странице создания пользователя с валидными данными.
+
+        Количество записей в базе данных - 0.
+        Создаем нового пользователя.
+        Страница должна быть перенаправлена на главную страницу (код 302), данные должны
+        быть сохранены в базе данных (количество записей в бд должно увеличиться на 1).
+        """
+        data = {
+            'first_name': 'Test',
+            'last_name': 'User',
+            'username': 'testuser',
+            'password1': 'password123',
+            'password2': 'password123'
+        }
+        self.assertEqual(User.objects.count(), 0)
+        response = self.client.post(reverse('users_create'), data)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('users_index'))
+        self.assertEqual(User.objects.count(), 1)
+
+    def test_user_create_view_post_invalid(self):
+        """
+        Проверка POST-запроса на странице создания пользователя с невалидными данными.
+
+        Создаем нового пользователя (невалидные данные).
+        Страница должна быть доступной (код 200), должен использоваться шаблон с формой
+        регистрации, количество записей в базе данных не изменяется - 0.
+        """
+        data = {
+            'first_name': '',
+            'last_name': '',
+            'username': '',
+            'password1': 'password123',
+            'password2': 'password123'
+        }
+        response = self.client.post(reverse('users_create'), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/create.html')
+        self.assertEqual(User.objects.count(), 0)
+
+
+class UserUpdateViewTest(TestCase):
     def setUp(self):
-        User.objects.create(username='testuser',
-                            password1='testpassword',
-                            password2='testpassword',
-                            first_name='testfirst',
-                            last_name='testlast',
-                            )
+        """
+        Создание пользователя для тестирования.
+        """
+        self.user = User.objects.create_user(
+            first_name='Test',
+            last_name='User',
+            username='testuser',
+            password='password123'
+        )
 
-    def test_user_creation(self):
-        user = User.objects.get(username='testuser')
-        self.assertEqual(user.first_name, 'testfirst')
-        self.assertEqual(user.last_name, 'testlast')
+    def test_user_update_view_get(self):
+        """
+        Проверка GET-запроса на странице редактирования пользователя.
 
-    def test_user_get_updating(self):
-        user = User.objects.get(username='testuser')
-        user.first_name = 'newfirst'
-        user.last_name = 'newlast'
-        user.save()
-        self.assertEqual(user.first_name, 'newfirst')
-        self.assertEqual(user.last_name, 'newlast')
+        Авторизуем тестового пользователя.
+        Страница должна быть доступной (код 200), должен использоваться правильный
+        шаблон (с формой редактирования пользователя).
+        """
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('users_update', args=[self.user.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/update.html')
 
-    def test_user_deletion(self):
-        user = User.objects.get(username='testuser')
-        user.delete()
-        self.assertRaises(User.DoesNotExist, User.objects.get, username='testuser')
+    def test_user_update_view_post_valid(self):
+        """
+        Проверка POST-запроса на странице редактирования пользователя с валидными
+        данными.
 
-    def test_user_get(self):
-        user = User.objects.get(username='testuser')
-        found_user = User.objects.get(username='testuser')
-        self.assertEqual(found_user, user)
+        Авторизуем тестового пользователя.
+        Изменяем данные пользователя.
+        Страница должна перенаправляться на страницу списка пользователей с кодом 302,
+        после сохранения пользователь должен выйти из сессии, данные пользователя в базе
+        данных должны измениться.
+        """
+        self.client.force_login(self.user)
+        data = {
+            'first_name': 'New Test',
+            'last_name': 'New User',
+            'username': 'newtestuser',
+            'password1': 'newpassword123',
+            'password2': 'newpassword123'
+        }
+        response = self.client.post(
+            reverse('users_update', args=[self.user.pk]),
+            data
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('users_index'))
+        self.assertFalse(self.client.session.get('user_id'))
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'New Test')
+        self.assertEqual(self.user.last_name, 'New User')
+        self.assertEqual(self.user.username, 'newtestuser')
 
-    def test_user_password_comparison(self):
-        user = User.objects.get(username='testuser')
-        self.assertEqual(user.password1, user.password2)
+    def test_user_update_view_post_invalid(self):
+        """
+        Проверка POST-запроса на странице редактирования пользователя с невалидными
+        данными.
 
-    # def test_user_creation_with_permissions(self):
-    #     user = User.objects.get(username='testuser')
-    #     self.assertTrue(user.has_perm('myapp.can_view_page'))
-    #     self.assertFalse(user.has_perm('myapp.can_edit_page'))
+        Авторизуем тестового пользователя.
+        Изменяем данные пользователя (невалидные данные).
+        Страница должна быть доступной (код 200), должен использоваться правильный
+        шаблон (с формой редактирования пользователя), данные пользователя в базе данных
+        не должны измениться.
+        """
+        self.client.force_login(self.user)
+        data = {
+            'first_name': '',
+            'last_name': '',
+            'username': '',
+            'password1': 'newpassword123',
+            'password2': 'newpassword123'
+        }
+        response = self.client.post(
+            reverse('users_update', args=[self.user.pk]),
+            data)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/update.html')
+        self.user.refresh_from_db()
+        self.assertEqual(self.user.first_name, 'Test')
+        self.assertEqual(self.user.last_name, 'User')
+        self.assertEqual(self.user.username, 'testuser')
 
-    # def test_user_creation_with_groups(self):
-    #     group = Group.objects.create(name='testgroup')
-    #     user = User.objects.create_user(username='testuser')
-    #     user.groups.add(group)
-    #     self.assertIn(group, user.groups.all())
+
+class UserDeleteViewTest(TestCase):
+    def setUp(self):
+        """
+        Создание пользователя для тестирования.
+        """
+        self.user = User.objects.create_user(
+            first_name='Test',
+            last_name='User',
+            username='testuser',
+            password='password123'
+        )
+
+    def test_user_delete_view_get(self):
+        """
+        Проверка GET-запроса на странице удаления пользователя.
+
+        Количество пользователей в базе данных должно быть равно единице.
+        Авторизуем тестового пользователя.
+        Страница должна быть доступной (код 200), должен использоваться правильный
+        шаблон (с формой удаления пользователя).
+        """
+        self.assertEqual(User.objects.count(), 1)
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('users_delete', args=[self.user.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/delete.html')
+
+    def test_user_delete_view_post(self):
+        """
+        Проверка POST-запроса на странице удаления пользователя.
+
+        Авторизуем тестового пользователя.
+        Удаляем пользователя.
+        Страница должна перенаправляться на страницу списка пользователей с кодом 302,
+        количество пользователей в базе данных должно быть уменьшено на единицу,
+        удаленная запись должна отсутствовать в базе данных.
+        """
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('users_delete', args=[self.user.pk]))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('users_index'))
+        self.assertEqual(User.objects.count(), 0)
+        self.assertQuerySetEqual(User.objects.filter(pk=self.user.pk), [])
+
+
+class ChangeOtherUserProfileTest(TestCase):
+    def setUp(self):
+        """
+        Создание двух пользователей для тестирования.
+        """
+        self.user1 = User.objects.create_user(
+            first_name='Test1',
+            last_name='User1',
+            username='testuser1',
+            password='password123'
+        )
+        self.user2 = User.objects.create_user(
+            first_name='Test2',
+            last_name='User2',
+            username='testuser2',
+            password='password123'
+        )
+
+    def test_authorized_user_cannot_change_other_user_profile(self):
+        """
+        Проверяет, что авторизованный пользователь не может изменить или удалить профиль
+        другого пользователя.
+
+        Авторизуем пользователя user1.
+        Количество пользователей в базе данных должно быть равно двум.
+        Пытаемся изменить профиль пользователя user2.
+        Страница должна перенаправляться на страницу списка пользователей с кодом 302.
+        Пытаемся удалить профиль пользователя user2.
+        Страница должна перенаправляться на страницу списка пользователей с кодом 302.
+        Проверяем, что профиль пользователя user2 не был изменен или удален.
+        Количество пользователей в базе данных должно быть равно двум (без изменений).
+        """
+        self.client.force_login(self.user1)
+        self.assertEqual(User.objects.count(), 2)
+
+        response = self.client.post(
+            reverse('users_update', kwargs={'pk': self.user2.pk}),
+            data={'username': 'Buzz', 'first_name': 'Bar'})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('users_index'))
+
+        response = self.client.post(
+            reverse('users_delete', kwargs={'pk': self.user2.pk}))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('users_index'))
+        self.user2.refresh_from_db()
+        self.assertEqual(self.user2.username, 'testuser2')
+        self.assertEqual(self.user2.first_name, 'Test2')
+        self.assertEqual(User.objects.count(), 2)
+
+    def test_not_authorized_user_cannot_change_other_user_profile(self):
+        """
+        Проверяет, что неавторизованный пользователь не может изменить или удалить
+        профиль другого пользователя.
+
+        Количество пользователей в базе данных должно быть равно двум.
+        Пытаемся изменить профиль пользователя user1.
+        Страница должна перенаправляться на страницу списка пользователей с кодом 302.
+        Пытаемся удалить профиль пользователя user1.
+        Страница должна перенаправляться на страницу списка пользователей с кодом 302.
+        Проверяем, что профиль пользователя user1 не был изменен или удален.
+        Количество пользователей в базе данных должно быть равно двум (без изменений).
+        """
+        self.assertEqual(User.objects.count(), 2)
+
+        response = self.client.post(
+            reverse('users_update', kwargs={'pk': self.user1.pk}),
+            data={'username': 'Buzz', 'first_name': 'Bar'})
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
+
+        response = self.client.post(
+            reverse('users_delete', kwargs={'pk': self.user1.pk}))
+
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
+        self.user1.refresh_from_db()
+        self.assertEqual(self.user1.username, 'testuser1')
+        self.assertEqual(self.user1.first_name, 'Test1')
+        self.assertEqual(User.objects.count(), 2)
+
+
+class UserLogoutTest(TestCase):
+    def setUp(self):
+        """
+        Создание пользователя для тестирования.
+        """
+        self.user = User.objects.create_user(
+            first_name='Test',
+            last_name='User',
+            username='testuser',
+            password='password123'
+        )
+
+    def test_user_logout(self):
+        """
+        Проверяет, что пользователь может выйти из системы
+
+        Авторизуем пользователя user.
+        Пытаемся выйти из системы.
+        Страница должна перенаправляться на страницу логина с кодом 302.
+        """
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('logout'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
