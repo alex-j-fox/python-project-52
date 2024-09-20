@@ -1,98 +1,64 @@
-from django.shortcuts import render, redirect
+from django.contrib.auth import get_user_model
+from django.contrib.messages.views import SuccessMessageMixin
+from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import View
-from django.contrib import messages
+from django.views.generic import CreateView, UpdateView, DeleteView
 
 from task_manager.users.forms import UserForm
-from task_manager.users.models import User
+from task_manager.users.mixins import AuthAndProfileOwnershipMixin
 
 
 class IndexView(View):
     template_name = 'users/index.html'
 
     def get(self, request, *args, **kwargs):
-        users = User.objects.all()
+        """
+        Вывод списка пользователей.
+        """
+        users = get_user_model().objects.all()
         return render(request,
                       self.template_name,
                       context={'users': users})
 
 
-class UserCreateView(View):
+class UserCreateView(SuccessMessageMixin, CreateView):
     template_name = 'users/create.html'
-    title = _('Registration')
-    action = _('Register')
+    form_class = UserForm
+    success_url = reverse_lazy('users_index')
+    success_message = _('User successfully registered')
+    model = get_user_model()
 
-    def get(self, request, *args, **kwargs):
-        form = UserForm()
-        return render(request,
-                      self.template_name,
-                      context={'form': form,
-                               'title': self.title,
-                               'action': self.action})
-
-    def post(self, request, *args, **kwargs):
-        form = UserForm(request.POST)
-        if form.is_valid():
-            form.save()
-            messages.success(request, _('User successfully registered'))
-            return redirect('users_index')
-
-        return render(request,
-                      self.template_name,
-                      context={'form': form,
-                               'title': self.title,
-                               'action': self.action})
+    def get_context_data(self, **kwargs):
+        """
+        Передача данных (название формы, текст кнопки) в контекст
+        """
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Registration')
+        context['action'] = _('Register')
+        return context
 
 
-class UserUpdateView(View):
+class UserUpdateView(SuccessMessageMixin, AuthAndProfileOwnershipMixin, UpdateView):
+    model = get_user_model()
     template_name = 'users/update.html'
-    title = _('Change user')
-    action = _('Change')
+    form_class = UserForm
+    success_url = reverse_lazy('users_index')
+    success_message = _('User successfully updated')
 
-    def get(self, request, *args, **kwargs):
-        user_id = kwargs.get('pk')
-        user = User.objects.get(id=user_id)
-        form = UserForm(instance=user)
-        return render(request,
-                      self.template_name,
-                      context={'user': user,
-                               'form': form,
-                               'title': self.title,
-                               'action': self.action})
-
-    def post(self, request, *args, **kwargs):
-        user_id = kwargs.get('pk')
-        user = User.objects.get(id=user_id)
-        print(f'Пользователь id: {user_id}')
-        print(f'Пользователь: {user}')
-        form = UserForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            print(form.data)
-            messages.success(request, _('User successfully updated'))
-            return redirect('users_index')
-        return render(request,
-                      self.template_name,
-                      context={'user': user,
-                               'form': form,
-                               'title': self.title,
-                               'action': self.action})
+    def get_context_data(self, **kwargs):
+        """
+        Передача данных (название формы, текст кнопки) в контекст
+        """
+        context = super().get_context_data(**kwargs)
+        context['title'] = _('Change user')
+        context['action'] = _('Change')
+        return context
 
 
-class UserDeleteView(View):
+class UserDeleteView(SuccessMessageMixin, AuthAndProfileOwnershipMixin, DeleteView):
+    model = get_user_model()
     template_name = 'users/delete.html'
-
-    def get(self, request, *args, **kwargs):
-        user_id = kwargs.get('pk')
-        user = User.objects.get(id=user_id)
-        return render(request,
-                      self.template_name,
-                      context={'user': user})
-
-    def post(self, request, *args, **kwargs):
-        user_id = kwargs.get('pk')
-        user = User.objects.get(id=user_id)
-        if user:
-            user.delete()
-            messages.info(request, _('User successfully deleted'))
-        return redirect('users_index')
+    success_url = reverse_lazy('users_index')
+    success_message = _('User successfully deleted')

@@ -1,30 +1,29 @@
 from django.contrib import messages
-from django.contrib.auth import logout, login
+from django.contrib.auth import logout
 from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import render, redirect
 from django.utils.translation import gettext_lazy as _
-
-from task_manager.users.forms import LoginForm
 
 
 def index(request):
     return render(request, 'index.html')
 
 
-class LoginUserView(LoginView):
-    authentication_form = LoginForm
+class LoginUserView(SuccessMessageMixin, LoginView):
     template_name = 'login.html'
-    success_url = 'index'
-
-    def form_valid(self, form):
-        login(self.request, form.get_user())
-        messages.success(self.request, _('You are logged in'))
-        return redirect(self.success_url)
+    success_message = _('You are logged in')
 
 
 class LogoutUserView(LogoutView):
 
     def post(self, request, *args, **kwargs):
+        """
+        Выход пользователя из системы.
+
+        Выполняет выход пользователя из системы.
+        Выводит сообщение об успешном выходе и перенаправляет на страницу входа.
+        """
         logout(request)
         messages.info(request, _('You are logged out'))
         return redirect('login')

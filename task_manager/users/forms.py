@@ -1,31 +1,19 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
+from django.contrib.auth.forms import UserCreationForm
 from django.utils.translation import gettext_lazy as _
-
-from task_manager.users.models import User
 
 
 class UserForm(UserCreationForm):
-    username = forms.CharField(
-        max_length=50,
-        label=_("Username"),
-        help_text=_("Required field. No more than 150 characters. Only letters, numbers and symbols @/./+/-/_.") # noqa
-    )
-    password1 = forms.CharField(
-        max_length=50,
-        label=_("Password"),
-        widget=forms.PasswordInput(attrs={type: 'password'}),
-        help_text=_("Your password must contain at least 3 characters.")
-    )
-    password2 = forms.CharField(
-        max_length=50,
-        label=_("Password confirmation"),
-        widget=forms.PasswordInput(attrs={type: 'password'}),
-        help_text=_("To confirm, please enter your password again.")
-    )
-    first_name = forms.CharField(max_length=50, label=_("First name"), required=True)
-    last_name = forms.CharField(max_length=50, label=_("Last name"), required=True)
+    def __init__(self, *args, **kwargs):
+        """
+        Инициализация формы.
+
+        Передаем в конструктор базовой формы обязательные поля.
+        """
+        super().__init__(*args, **kwargs)
+        self.fields['first_name'].required = True
+        self.fields['last_name'].required = True
 
     class Meta:
         model = get_user_model()
@@ -37,40 +25,16 @@ class UserForm(UserCreationForm):
             'password2'
         )
 
+    def clean_username(self):
+        """
+        Функция проверяет, существует ли пользователь с таким именем.
 
-class LoginForm(AuthenticationForm):
-    username = forms.CharField(
-        max_length=150,
-        label=_('Username'),
-        widget=forms.TextInput(attrs={
-            'type': 'text',
-            'name': 'username',
-            'autofocus': '',
-            'autocapitalize': 'none',
-            'autocomplete': 'username',
-            'class': 'form-control',
-            'placeholder': _('Username'),
-            'required': '',
-            'id': 'id_username',
-        }),
-        error_messages={
-            'required': _('Please enter your username.'),
-            'invalid': _('Please enter a valid username.')
-        })
-    password = forms.CharField(
-        max_length=50,
-        label=_('Password'),
-        widget=forms.PasswordInput(attrs={
-            'type': 'password',
-            'name': 'password',
-            'autocomplete': 'current-password',
-            'class': 'form-control',
-            'placeholder': _('Password'),
-            'required': '',
-            'id': 'id_password'
-        })
-    )
-
-    class Meta:
-        model = User
-        fields = ('username', 'password')
+        Если пользователь с таким именем существует, выбрасывается исключение
+        ValidationError с описанием ошибки.
+        """
+        username = self.cleaned_data['username']
+        error_message = _('A user with that username already exists.')
+        if get_user_model().objects.filter(username=username).exclude(
+                id=self.instance.id).exists():
+            raise forms.ValidationError(error_message)
+        return username
