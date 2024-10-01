@@ -1,43 +1,18 @@
 from django.contrib.auth import get_user_model
-from django.contrib.messages.views import SuccessMessageMixin
-from django.shortcuts import render
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views import View
-from django.views.generic import CreateView, UpdateView, DeleteView, FormView
+from django.views.generic import CreateView, UpdateView, DeleteView, TemplateView
 
+from task_manager.mixins import AuthAndProfileOwnershipMixin, CustomContextMixin
 from task_manager.users.forms import UserForm
-from task_manager.users.mixins import AuthAndProfileOwnershipMixin
 
 
-class IndexView(View):
+class IndexView(TemplateView):
     template_name = 'users/index.html'
-
-    def get(self, request, *args, **kwargs):
-        """
-        Вывод списка пользователей.
-        """
-        users = get_user_model().objects.all()
-        return render(request,
-                      self.template_name,
-                      context={'users': users})
+    extra_context = {'users': get_user_model().objects.all()}
 
 
-class ContextMixin(SuccessMessageMixin, FormView):
-    title = ''
-    action = ''
-
-    def get_context_data(self, **kwargs):
-        """
-        Передача данных (название формы, текст кнопки) в контекст
-        """
-        context = super().get_context_data(**kwargs)
-        context['title'] = self.title
-        context['action'] = self.action
-        return context
-
-
-class UserCreateView(ContextMixin, CreateView):
+class UserCreateView(CustomContextMixin, CreateView):
     template_name = 'users/create.html'
     form_class = UserForm
     success_url = reverse_lazy('users_index')
@@ -47,7 +22,7 @@ class UserCreateView(ContextMixin, CreateView):
     action = _('Register')
 
 
-class UserUpdateView(AuthAndProfileOwnershipMixin, ContextMixin, UpdateView):
+class UserUpdateView(AuthAndProfileOwnershipMixin, CustomContextMixin, UpdateView):
     model = get_user_model()
     template_name = 'users/update.html'
     form_class = UserForm
@@ -57,7 +32,7 @@ class UserUpdateView(AuthAndProfileOwnershipMixin, ContextMixin, UpdateView):
     action = _('Change')
 
 
-class UserDeleteView(SuccessMessageMixin, AuthAndProfileOwnershipMixin, DeleteView):
+class UserDeleteView(AuthAndProfileOwnershipMixin, CustomContextMixin, DeleteView):
     model = get_user_model()
     template_name = 'users/delete.html'
     success_url = reverse_lazy('users_index')

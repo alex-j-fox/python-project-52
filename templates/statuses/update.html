@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+  <h1 class="my-4">{{ title }}</h1>
+  <form action="{% url 'statuses_update' status.id %}" method="post">
+    {% include 'form.html' %}
+  </form>
+
+{% endblock %}
