@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-20 09:09+0300\n"
+"POT-Creation-Date: 2024-10-01 14:07+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,71 +20,113 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: task_manager/context_processors.py:7 templates/users/index.html:7
+#: task_manager/context_processors.py:20 templates/users/index.html:7
 msgid "Users"
 msgstr "Пользователи"
 
-#: task_manager/context_processors.py:14
+#: task_manager/context_processors.py:28 templates/statuses/index.html:7
 msgid "Statuses"
 msgstr "Статусы"
 
-#: task_manager/context_processors.py:20 task_manager/labels/apps.py:8
+#: task_manager/context_processors.py:34
 msgid "Labels"
 msgstr "Метки"
 
-#: task_manager/context_processors.py:26
+#: task_manager/context_processors.py:40
 msgid "Tasks"
 msgstr "Задачи"
 
-#: task_manager/context_processors.py:32
+#: task_manager/context_processors.py:47
 msgid "Wellcome"
 msgstr "Добро пожаловать"
 
-#: task_manager/context_processors.py:37
+#: task_manager/context_processors.py:53
 msgid "Logout"
 msgstr "Выход"
 
-#: task_manager/context_processors.py:45 templates/login.html:6
+#: task_manager/context_processors.py:62 templates/login.html:6
 msgid "Login"
 msgstr "Вход"
 
-#: task_manager/context_processors.py:51 task_manager/users/views.py:38
+#: task_manager/context_processors.py:68 task_manager/users/views.py:21
 msgid "Registration"
 msgstr "Регистрация"
 
-#: task_manager/users/forms.py:36
-msgid "A user with that username already exists."
-msgstr ""
-
-#: task_manager/users/mixins.py:19
+#: task_manager/mixins.py:21
 msgid "You are not authorized! Please log in."
 msgstr "Вы не авторизованы! Пожалуйста, выполните вход."
 
-#: task_manager/users/mixins.py:22
+#: task_manager/mixins.py:24
 msgid "You don't have permission to change other user"
 msgstr "У вас нет прав для изменения другого пользователя."
 
-#: task_manager/users/views.py:30
-msgid "User successfully registered"
-msgstr "Пользователь успешно зарегистрирован"
+#: task_manager/statuses/models.py:7 templates/statuses/index.html:15
+msgid "Name"
+msgstr "Имя"
 
-#: task_manager/users/views.py:39
-msgid "Register"
-msgstr "Зарегистрировать"
+#: task_manager/statuses/tests.py:117 task_manager/statuses/tests.py:213
+msgid "This field is required."
+msgstr ""
 
-#: task_manager/users/views.py:48
-msgid "User successfully updated"
-msgstr "Пользователь успешно изменен"
+#: task_manager/statuses/tests.py:147 task_manager/statuses/tests.py:251
+#, fuzzy
+#| msgid "A user with that username already exists."
+msgid "Status with this Name already exists."
+msgstr "Пользователь с таким именем уже существует."
 
-#: task_manager/users/views.py:55
-msgid "Change user"
-msgstr "Изменение пользователя"
+#: task_manager/statuses/views.py:31
+msgid "Status successfully created"
+msgstr "Статус успешно изменен"
 
-#: task_manager/users/views.py:56
+#: task_manager/statuses/views.py:32 templates/statuses/index.html:8
+msgid "Create status"
+msgstr "Создать статус"
+
+#: task_manager/statuses/views.py:33
+msgid "Create"
+msgstr "Создать"
+
+#: task_manager/statuses/views.py:42
+msgid "Status successfully updated"
+msgstr "Статус успешно изменен"
+
+#: task_manager/statuses/views.py:43
+msgid "Change status"
+msgstr "Изменение статуса"
+
+#: task_manager/statuses/views.py:44 task_manager/users/views.py:32
 msgid "Change"
 msgstr "Изменить"
 
-#: task_manager/users/views.py:64
+#: task_manager/statuses/views.py:55
+msgid "Status successfully deleted"
+msgstr "Статус успешно удален"
+
+#: task_manager/statuses/views.py:56
+msgid "Deleting a status"
+msgstr "Удаление статуса"
+
+#: task_manager/users/forms.py:36
+msgid "A user with that username already exists."
+msgstr "Пользователь с таким именем уже существует."
+
+#: task_manager/users/views.py:19
+msgid "User successfully registered"
+msgstr "Пользователь успешно зарегистрирован"
+
+#: task_manager/users/views.py:22
+msgid "Register"
+msgstr "Зарегистрировать"
+
+#: task_manager/users/views.py:30
+msgid "User successfully updated"
+msgstr "Пользователь успешно изменен"
+
+#: task_manager/users/views.py:31
+msgid "Change user"
+msgstr "Изменение пользователя"
+
+#: task_manager/users/views.py:39
 msgid "User successfully deleted"
 msgstr "Пользователь успешно удален"
 
@@ -102,15 +144,15 @@ msgstr "Менеджер задач Хекслет"
 
 #: templates/errors/404.html:8
 msgid "Page not found"
-msgstr "Страница не найдена"
+msgstr "Страница не найдена"
 
 #: templates/errors/404.html:9
 msgid ""
 "The page you were looking for could not be found. It may not exist or may "
 "have been deleted."
 msgstr ""
-"Страница, которую вы искали, не найдена. Возможно, она не существует или была "
-"удалена"
+"Страница, которую вы искали, не найдена. Возможно, она не существует или "
+"была удалена"
 
 #: templates/errors/404.html:10 templates/errors/500.html:10
 msgid "Home"
@@ -148,21 +190,33 @@ msgstr "Узнать больше"
 msgid "Sign in"
 msgstr "Войти"
 
-#: templates/users/delete.html:7
-msgid "Deleting a user"
-msgstr "Удаление пользователя"
-
-#: templates/users/delete.html:8
+#: templates/statuses/delete.html:8 templates/users/delete.html:8
 msgid "Are you sure you want to delete"
 msgstr "Вы уверены, что хотите удалить"
 
-#: templates/users/delete.html:12
+#: templates/statuses/delete.html:12 templates/users/delete.html:12
 msgid "Yes, delete"
 msgstr "Да, удалить"
 
-#: templates/users/index.html:12
+#: templates/statuses/index.html:14 templates/users/index.html:12
 msgid "ID"
 msgstr ""
+
+#: templates/statuses/index.html:16 templates/users/index.html:15
+msgid "Created at"
+msgstr "Дата создания"
+
+#: templates/statuses/index.html:28 templates/users/index.html:28
+msgid "Update"
+msgstr "Изменить"
+
+#: templates/statuses/index.html:30 templates/users/index.html:30
+msgid "Delete"
+msgstr "Удалить"
+
+#: templates/users/delete.html:7
+msgid "Deleting a user"
+msgstr "Удаление пользователя"
 
 #: templates/users/index.html:13
 msgid "Username"
@@ -171,15 +225,3 @@ msgstr "Имя пользователя"
 #: templates/users/index.html:14
 msgid "Full name"
 msgstr "Полное имя"
-
-#: templates/users/index.html:15
-msgid "Created at"
-msgstr "Дата создания"
-
-#: templates/users/index.html:28
-msgid "Update"
-msgstr "Изменить"
-
-#: templates/users/index.html:30
-msgid "Delete"
-msgstr "Удалить"
