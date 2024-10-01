@@ -1,7 +1,9 @@
 from django.contrib import messages
-from django.contrib.auth.mixins import UserPassesTestMixin
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
+from django.views.generic import FormView
 
 
 class AuthAndProfileOwnershipMixin(UserPassesTestMixin):
@@ -28,3 +30,27 @@ class AuthAndProfileOwnershipMixin(UserPassesTestMixin):
         """
         user_id = self.kwargs.get('pk')
         return self.request.user.pk == user_id
+
+
+class CustomContextMixin(SuccessMessageMixin, FormView):
+    title = ''
+    action = ''
+
+    def get_context_data(self, **kwargs):
+        """
+        Передача данных (название формы, текст кнопки) в контекст
+        """
+        context = super().get_context_data(**kwargs)
+        context['title'] = self.title
+        context['action'] = self.action
+        return context
+
+
+class CustomLoginRequiredMixin(LoginRequiredMixin):
+    def handle_no_permission(self):
+        """
+        Обработка ошибок для неавторизованного пользователя.
+
+        Если пользователь не авторизован, перенаправляем на страницу входа.
+        """
+        return redirect(self.login_url)
