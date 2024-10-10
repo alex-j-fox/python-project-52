@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% load i18n django_bootstrap5 %}
+
+{% block content %}
+
+  <h1 class="my-4">{{ title }}</h1>
+  <p>{% trans "Are you sure you want to delete" %} {{ task.name }}?</p>
+  
+  <form method="post">
+    {% csrf_token %}
+    {% trans 'Yes, delete' as button_value %}
+    {% bootstrap_button button_value button_class="btn btn-danger" %}
+  </form>
+
+{% endblock %}
