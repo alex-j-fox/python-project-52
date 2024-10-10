@@ -8,11 +8,8 @@ from task_manager.statuses.models import Status
 User = get_user_model()
 
 
-# TODO CRUD авторизованных пользователей разбить по отдельным классам
-
-
 class BaseTestCase(TestCase):
-    def user_set_up(self):
+    def setUp(self):
         self.user = User.objects.create_user(
             first_name='Test',
             last_name='User',
@@ -20,9 +17,10 @@ class BaseTestCase(TestCase):
             password='password123'
         )
         self.client = Client()
+        self.client.force_login(self.user)
 
 
-class UnauthorizedCRUDTest(BaseTestCase):
+class UnauthorizedCRUDTest(TestCase):
 
     def test_unauthorized_create(self):
         """
@@ -59,18 +57,13 @@ class UnauthorizedCRUDTest(BaseTestCase):
 
 
 class StatusesCreateViewTest(BaseTestCase):
-    def setUp(self):
-        self.user_set_up()
-
     def test_status_create_view_get(self):
         """
         Проверка GET-запроса на странице создания статуса.
 
-        Авторизуем тестового пользователя.
         Страница должна быть доступной (код 200), должен использоваться правильный
         шаблон (с формой создания статуса).
         """
-        self.client.force_login(self.user)
         response = self.client.get(reverse('statuses_create'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'statuses/create.html')
@@ -79,9 +72,8 @@ class StatusesCreateViewTest(BaseTestCase):
         """
         Проверка POST-запроса на странице создания статуса с валидными данными.
 
-        После авторизации тестового пользователя количество записей в базе данных - 0.
-        Создаем новый статус.
-        Страница должна быть перенаправлена на страницу со списком статусов (код 302),
+        Количество записей в базе данных - 0. После создания нового статуса
+        страница должна быть перенаправлена на страницу со списком статусов (код 302),
         данные должны быть сохранены в базе данных.
         Количество записей в бд должно увеличиться на 1.
         Имя статуса в базе данных должно соответствовать введенному значению.
@@ -89,7 +81,6 @@ class StatusesCreateViewTest(BaseTestCase):
         data = {
             'name': 'Test status'
         }
-        self.client.force_login(self.user)
         self.assertEqual(Status.objects.count(), 0)
         response = self.client.post(reverse('statuses_create'), data)
         self.assertEqual(response.status_code, 302)
@@ -110,7 +101,6 @@ class StatusesCreateViewTest(BaseTestCase):
         data = {
             'name': ''
         }
-        self.client.force_login(self.user)
         response = self.client.post(reverse('statuses_create'), data)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'statuses/create.html')
@@ -121,7 +111,7 @@ class StatusesCreateViewTest(BaseTestCase):
         """
         Проверка POST-запроса на странице создания статуса с уникальным статусом.
 
-        После авторизации пользователя количество записей в базе данных - 0.
+        Количество записей в базе данных - 0.
         Создаем новый статус. Страница должна быть перенаправлена на страницу со списком
         статусов (код 302), данные должны быть сохранены в базе данных.
         Количество записей в бд должно увеличиться на 1.
@@ -133,13 +123,8 @@ class StatusesCreateViewTest(BaseTestCase):
         data = {
             'name': 'Test status'
         }
-        self.client.force_login(self.user)
         self.assertEqual(Status.objects.count(), 0)
-        response = self.client.post(reverse('statuses_create'), data)
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('statuses_index'))
-        self.assertEqual(Status.objects.count(), 1)
-
+        self.client.post(reverse('statuses_create'), data)
         # Создаем еще один статус с тем же именем
         response = self.client.post(reverse('statuses_create'), data)
         self.assertEqual(response.status_code, 200)
@@ -150,18 +135,16 @@ class StatusesCreateViewTest(BaseTestCase):
 
 class StatusesUpdateViewTest(BaseTestCase):
     def setUp(self):
-        self.user_set_up()
+        super().setUp()
         self.status = Status.objects.create(name='Test status')
 
     def test_status_update_view_get(self):
         """
         Проверка GET-запроса на странице редактирования статуса.
 
-        Авторизуем тестового пользователя.
         Страница должна быть доступной (код 200), должен использоваться правильный
         шаблон (с формой редактирования статуса).
         """
-        self.client.force_login(self.user)
         response = self.client.get(
             reverse('statuses_update', kwargs={'pk': self.status.pk}))
         self.assertEqual(response.status_code, 200)
@@ -171,7 +154,7 @@ class StatusesUpdateViewTest(BaseTestCase):
         """
         Проверка POST-запроса на странице редактирования статуса с валидными данными.
 
-        После авторизации тестового пользователя количество записей в базе данных - 1.
+        Количество записей в базе данных - 1.
         Изменяем имя статуса. Страница должна быть перенаправлена на страницу со списком
         статусов (код 302), данные должны быть сохранены в базе данных.
         Количество записей в бд не должно измениться.
@@ -180,7 +163,6 @@ class StatusesUpdateViewTest(BaseTestCase):
         data = {
             'name': 'Test status updated'
         }
-        self.client.force_login(self.user)
         self.assertEqual(Status.objects.count(), 1)
         response = self.client.post(
             reverse('statuses_update', kwargs={'pk': self.status.pk}), data)
@@ -194,7 +176,7 @@ class StatusesUpdateViewTest(BaseTestCase):
         """
         Проверка POST-запроса на странице редактирования статуса с невалидными данными.
 
-        Авторизуем тестового пользователя. Количество записей в базе данных - 1.
+       Количество записей в базе данных - 1.
         Пытаемся изменить имя на пустую строку.
         Страница должна быть доступной (код 200), должен использоваться шаблон с формой
         редактирования статуса, количество записей в базе данных не должно изменяться.
@@ -204,7 +186,6 @@ class StatusesUpdateViewTest(BaseTestCase):
         data = {
             'name': ''
         }
-        self.client.force_login(self.user)
         self.assertEqual(Status.objects.count(), 1)
         response = self.client.post(
             reverse('statuses_update', kwargs={'pk': self.status.pk}), data)
@@ -219,7 +200,7 @@ class StatusesUpdateViewTest(BaseTestCase):
         """
         Проверка POST-запроса на странице редактирования статуса с уникальным именем.
 
-        Авторизуем тестового пользователя. Количество записей в базе данных - 1.
+        Количество записей в базе данных - 1.
         Создаем второй статус. Страница должна быть перенаправлена на страницу со
         списком статусов (код 302), данные должны быть сохранены в базе данных.
         Количество записей в бд должно измениться - 2.
@@ -232,7 +213,6 @@ class StatusesUpdateViewTest(BaseTestCase):
         data_new = {
             'name': 'Test status new'
         }
-        self.client.force_login(self.user)
         self.assertEqual(Status.objects.count(), 1)
         response = self.client.post(reverse('statuses_create'), data_new)
         self.assertEqual(response.status_code, 302)
@@ -255,18 +235,16 @@ class StatusesUpdateViewTest(BaseTestCase):
 
 class StatusesDeleteViewTest(BaseTestCase):
     def setUp(self):
-        self.user_set_up()
+        super().setUp()
         self.status = Status.objects.create(name='Test status')
 
     def test_status_delete_view(self):
         """
         Проверка GET-запроса на странице удаления статуса.
 
-        Авторизуем тестового пользователя.
         Страница должна быть доступной (код 200), должен использоваться правильный
         шаблон (с формой удаления статуса).
         """
-        self.client.force_login(self.user)
         response = self.client.get(
             reverse('statuses_delete', kwargs={'pk': self.status.pk}))
         self.assertEqual(response.status_code, 200)
@@ -276,12 +254,10 @@ class StatusesDeleteViewTest(BaseTestCase):
         """
         Проверка POST-запроса на странице удаления статуса.
 
-        Авторизуем тестового пользователя. Количество записей в базе данных - 1.
-        Пытаемся удалить статус.
-        Страница должна быть перенаправлена на страницу со списком статусов с кодом 302.
+        Количество записей в базе данных - 1. После удаления статуса страница должна
+        быть перенаправлена на страницу со списком статусов с кодом 302.
         Количество записей в базе данных после удаления - 0.
         """
-        self.client.force_login(self.user)
         self.assertEqual(Status.objects.count(), 1)
         response = self.client.post(
             reverse('statuses_delete', kwargs={'pk': self.status.pk}))

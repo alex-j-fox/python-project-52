@@ -9,13 +9,17 @@ class Status(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.task_set = None
 
     def __str__(self):
         return self.name
 
     def delete(self, *args, **kwargs):
-        if self.task_set and self.task_set.exists():
+        """
+        Проверка на использование статуса в задачах
+
+        Возбуждает ProtectedError если статус используется хотя бы одной задачей
+        """
+        if self.task_set.exists():
             raise ProtectedError("Cannot delete status because it is in use",
                                  self.task_set.all())
 

@@ -1,29 +1,32 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.shortcuts import render
+from django.contrib import messages
+from django.db.models import ProtectedError
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views import View
-from django.views.generic import CreateView, UpdateView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView, TemplateView
 
-from task_manager.mixins import CustomContextMixin, CustomLoginRequiredMixin
+from task_manager.mixins import SuccessMessageFormContextMixin, CustomLoginRequiredMixin
 from task_manager.statuses.forms import StatusForm
 from task_manager.statuses.models import Status
 
 
-class IndexView(LoginRequiredMixin, View):
+# class IndexView(CustomLoginRequiredMixin, TemplateView):
+class IndexView(CustomLoginRequiredMixin, TemplateView):
     template_name = 'statuses/index.html'
+    login_url = reverse_lazy('login')
 
-    def get(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         """
-        Вывод списка статусов.
+        Передача контекста в шаблон.
         """
-        statuses = Status.objects.all()
-        return render(request,
-                      self.template_name,
-                      context={'statuses': statuses})
+        context = super().get_context_data(**kwargs)
+        context['statuses'] = Status.objects.all()
+        return context
 
 
-class StatusCreateView(CustomLoginRequiredMixin, CustomContextMixin, CreateView):
+class StatusCreateView(CustomLoginRequiredMixin,
+                       SuccessMessageFormContextMixin,
+                       CreateView):
     template_name = 'statuses/create.html'
     form_class = StatusForm
     model = Status
@@ -34,7 +37,9 @@ class StatusCreateView(CustomLoginRequiredMixin, CustomContextMixin, CreateView)
     login_url = reverse_lazy('login')
 
 
-class StatusUpdateView(CustomLoginRequiredMixin, CustomContextMixin, UpdateView):
+class StatusUpdateView(CustomLoginRequiredMixin,
+                       SuccessMessageFormContextMixin,
+                       UpdateView):
     template_name = 'statuses/update.html'
     form_class = StatusForm
     model = Status
@@ -48,10 +53,31 @@ class StatusUpdateView(CustomLoginRequiredMixin, CustomContextMixin, UpdateView)
         return self.login_url
 
 
-class StatusDeleteView(CustomLoginRequiredMixin, CustomContextMixin, DeleteView):
+class StatusDeleteView(CustomLoginRequiredMixin,
+                       SuccessMessageFormContextMixin,
+                       DeleteView):
     template_name = 'statuses/delete.html'
     model = Status
     success_url = reverse_lazy('statuses_index')
     success_message = _('Status successfully deleted')
+    error_message = _('Cannot delete status because it is in use')
     title = _('Deleting a status')
     login_url = reverse_lazy('login')
+
+    def post(self, request, *args, **kwargs):
+        """
+        Обработка формы удаления.
+
+        При успешном удалении статуса показываем сообщение об успешном удалении и
+        перенаправляем пользователя на страницу со списком статусов.
+        Если статус защищен от удаления, показываем сообщение об ошибке и перенаправляем
+        пользователя на страницу со списком статусов.
+        """
+        try:
+            response = super().delete(request, *args, **kwargs)
+            if response.status_code == 302:
+                messages.success(request, self.success_message)
+            return response
+        except ProtectedError:
+            messages.error(request, self.error_message)
+            return redirect(self.success_url)
