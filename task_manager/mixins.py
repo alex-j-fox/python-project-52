@@ -32,7 +32,7 @@ class AuthAndProfileOwnershipMixin(UserPassesTestMixin):
         return self.request.user.pk == user_id
 
 
-class CustomContextMixin(SuccessMessageMixin, FormView):
+class SuccessMessageFormContextMixin(SuccessMessageMixin, FormView):
     title = ''
     action = ''
 
