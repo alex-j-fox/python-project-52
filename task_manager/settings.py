@@ -52,6 +52,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
+
 ]
 
 ROOT_URLCONF = 'task_manager.urls'
@@ -198,3 +200,10 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = os.environ.get('GITHUB_ACTIONS') != 'true'
     SECURE_HSTS_PRELOAD = True
     SESSION_COOKIE_SECURE = True
+
+ROLLBAR = {
+    'access_token': os.getenv('ROLLBAR_TOKEN'),
+    'environment': 'development' if DEBUG else 'production',
+    'code_version': '1.0',
+    'root': BASE_DIR,
+}
