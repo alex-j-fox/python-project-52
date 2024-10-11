@@ -3,7 +3,8 @@ from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView
+from django.views.generic import FormView, TemplateView, CreateView, UpdateView, \
+    DeleteView, DetailView
 
 
 class AuthAndProfileOwnershipMixin(UserPassesTestMixin):
@@ -54,3 +55,27 @@ class CustomLoginRequiredMixin(LoginRequiredMixin):
         Если пользователь не авторизован, перенаправляем на страницу входа.
         """
         return redirect(self.login_url)
+
+
+class CustomIndexView(CustomLoginRequiredMixin, TemplateView):
+    pass
+
+
+class CustomCreateView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+                       CreateView):
+    pass
+
+
+class CustomUpdateView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+                       UpdateView):
+    pass
+
+
+class CustomDeleteView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+                       DeleteView):
+    pass
+
+
+class CustomDetailView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+                       DetailView):
+    pass

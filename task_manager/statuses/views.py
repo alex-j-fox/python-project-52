@@ -3,15 +3,17 @@ from django.db.models import ProtectedError
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import CreateView, UpdateView, DeleteView, TemplateView
 
-from task_manager.mixins import SuccessMessageFormContextMixin, CustomLoginRequiredMixin
+from task_manager.mixins import (CustomIndexView,
+                                 CustomCreateView,
+                                 CustomUpdateView,
+                                 CustomDeleteView)
 from task_manager.statuses.forms import StatusForm
 from task_manager.statuses.models import Status
 
 
 # class IndexView(CustomLoginRequiredMixin, TemplateView):
-class IndexView(CustomLoginRequiredMixin, TemplateView):
+class IndexView(CustomIndexView):
     template_name = 'statuses/index.html'
     login_url = reverse_lazy('login')
 
@@ -24,9 +26,7 @@ class IndexView(CustomLoginRequiredMixin, TemplateView):
         return context
 
 
-class StatusCreateView(CustomLoginRequiredMixin,
-                       SuccessMessageFormContextMixin,
-                       CreateView):
+class StatusCreateView(CustomCreateView):
     template_name = 'statuses/create.html'
     form_class = StatusForm
     model = Status
@@ -37,9 +37,7 @@ class StatusCreateView(CustomLoginRequiredMixin,
     login_url = reverse_lazy('login')
 
 
-class StatusUpdateView(CustomLoginRequiredMixin,
-                       SuccessMessageFormContextMixin,
-                       UpdateView):
+class StatusUpdateView(CustomUpdateView):
     template_name = 'statuses/update.html'
     form_class = StatusForm
     model = Status
@@ -53,9 +51,7 @@ class StatusUpdateView(CustomLoginRequiredMixin,
         return self.login_url
 
 
-class StatusDeleteView(CustomLoginRequiredMixin,
-                       SuccessMessageFormContextMixin,
-                       DeleteView):
+class StatusDeleteView(CustomDeleteView):
     template_name = 'statuses/delete.html'
     model = Status
     success_url = reverse_lazy('statuses_index')

@@ -2,20 +2,26 @@ from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView, \
-    DetailView
 
-from task_manager.mixins import SuccessMessageFormContextMixin, CustomLoginRequiredMixin
+from task_manager.mixins import (CustomIndexView,
+                                 CustomCreateView,
+                                 CustomUpdateView,
+                                 CustomDetailView,
+                                 CustomDeleteView)
 from task_manager.tasks.forms import TaskForm, TaskFilterForm
 from task_manager.tasks.models import Task
+from task_manager.tasks.utils import filter_tasks
 
 
-class IndexView(CustomLoginRequiredMixin, TemplateView):
+class IndexView(CustomIndexView):
     template_name = 'tasks/index.html'
     form_class = TaskFilterForm
     login_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs):
+        """
+        Передача контекста в шаблон с задачами и формой фильтрации.
+        """
         context = super().get_context_data(**kwargs)
         context['tasks'] = Task.objects.all()
         context['form'] = self.form_class()
@@ -24,18 +30,13 @@ class IndexView(CustomLoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         """
         Обработка формы фильтра.
+
+        Если применяются фильтры, функция возвращает отфильтрованные задачи.
+        Иначе функция возвращает все задачи.
         """
         form = self.form_class(request.POST)
         if form.is_valid():
-            tasks = Task.objects.all()
-            if form.cleaned_data.get('status'):
-                tasks = tasks.filter(status=form.cleaned_data.get('status'))
-            if form.cleaned_data.get('executor'):
-                tasks = tasks.filter(executor=form.cleaned_data.get('executor'))
-            if form.cleaned_data.get('label'):
-                tasks = tasks.filter(labels=form.cleaned_data.get('label'))
-            if form.cleaned_data.get('self_tasks'):
-                tasks = tasks.filter(author=request.user)
+            tasks = filter_tasks(form, request)
             return render(request,
                           self.template_name,
                           context={'tasks': tasks,
@@ -47,9 +48,7 @@ class IndexView(CustomLoginRequiredMixin, TemplateView):
                                    'form': form})
 
 
-class TaskCreateView(CustomLoginRequiredMixin,
-                     SuccessMessageFormContextMixin,
-                     CreateView):
+class TaskCreateView(CustomCreateView):
     template_name = 'tasks/create.html'
     form_class = TaskForm
     model = Task
@@ -70,9 +69,7 @@ class TaskCreateView(CustomLoginRequiredMixin,
         return response
 
 
-class TaskDetailView(CustomLoginRequiredMixin,
-                     SuccessMessageFormContextMixin,
-                     DetailView):
+class TaskDetailView(CustomDetailView):
     template_name = 'tasks/detail.html'
     model = Task
     pk_url_kwarg = 'pk'
@@ -82,9 +79,7 @@ class TaskDetailView(CustomLoginRequiredMixin,
     login_url = reverse_lazy('login')
 
 
-class TaskUpdateView(CustomLoginRequiredMixin,
-                     SuccessMessageFormContextMixin,
-                     UpdateView):
+class TaskUpdateView(CustomUpdateView):
     template_name = 'tasks/update.html'
     form_class = TaskForm
     model = Task
@@ -98,9 +93,7 @@ class TaskUpdateView(CustomLoginRequiredMixin,
         return self.login_url
 
 
-class TaskDeleteView(CustomLoginRequiredMixin,
-                     SuccessMessageFormContextMixin,
-                     DeleteView):
+class TaskDeleteView(CustomDeleteView):
     template_name = 'tasks/delete.html'
     model = Task
     success_url = reverse_lazy('tasks_index')

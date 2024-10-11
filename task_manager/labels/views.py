@@ -3,14 +3,16 @@ from django.db.models import ProtectedError
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import TemplateView, CreateView, UpdateView, DeleteView
 
-from task_manager.labels.models import Label
-from task_manager.mixins import CustomLoginRequiredMixin, SuccessMessageFormContextMixin
 from task_manager.labels.forms import LabelForm
+from task_manager.labels.models import Label
+from task_manager.mixins import (CustomIndexView,
+                                 CustomCreateView,
+                                 CustomUpdateView,
+                                 CustomDeleteView)
 
 
-class IndexView(CustomLoginRequiredMixin, TemplateView):
+class IndexView(CustomIndexView):
     template_name = 'labels/index.html'
     login_url = reverse_lazy('login')
 
@@ -23,9 +25,7 @@ class IndexView(CustomLoginRequiredMixin, TemplateView):
         return context
 
 
-class LabelCreateView(CustomLoginRequiredMixin,
-                      SuccessMessageFormContextMixin,
-                      CreateView):
+class LabelCreateView(CustomCreateView):
     template_name = 'labels/create.html'
     form_class = LabelForm
     model = Label
@@ -36,9 +36,7 @@ class LabelCreateView(CustomLoginRequiredMixin,
     login_url = reverse_lazy('login')
 
 
-class LabelUpdateView(CustomLoginRequiredMixin,
-                      SuccessMessageFormContextMixin,
-                      UpdateView):
+class LabelUpdateView(CustomUpdateView):
     template_name = 'labels/update.html'
     form_class = LabelForm
     model = Label
@@ -52,9 +50,7 @@ class LabelUpdateView(CustomLoginRequiredMixin,
         return self.login_url
 
 
-class LabelDeleteView(CustomLoginRequiredMixin,
-                      SuccessMessageFormContextMixin,
-                      DeleteView):
+class LabelDeleteView(CustomDeleteView):
     template_name = 'labels/delete.html'
     model = Label
     success_url = reverse_lazy('labels_index')
