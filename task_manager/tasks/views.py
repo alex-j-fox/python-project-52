@@ -16,7 +16,6 @@ from task_manager.tasks.utils import filter_tasks
 class IndexView(CustomIndexView):
     template_name = 'tasks/index.html'
     form_class = TaskFilterForm
-    login_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs):
         """
@@ -55,8 +54,6 @@ class TaskCreateView(CustomCreateView):
     success_url = reverse_lazy('tasks_index')
     success_message = _('Task successfully created')
     title = _('Create task')
-    action = _('Create')
-    login_url = reverse_lazy('login')
 
     def form_valid(self, form):
         """
@@ -76,7 +73,6 @@ class TaskDetailView(CustomDetailView):
     context_object_name = 'task'
     form_class = TaskForm
     title = _('View a task')
-    login_url = reverse_lazy('login')
 
 
 class TaskUpdateView(CustomUpdateView):
@@ -86,11 +82,6 @@ class TaskUpdateView(CustomUpdateView):
     success_url = reverse_lazy('tasks_index')
     success_message = _('Task successfully updated')
     title = _('Change task')
-    action = _('Change')
-    login_url = reverse_lazy('login')
-
-    def get_redirect_url(self):
-        return self.login_url
 
 
 class TaskDeleteView(CustomDeleteView):
@@ -99,7 +90,6 @@ class TaskDeleteView(CustomDeleteView):
     success_url = reverse_lazy('tasks_index')
     success_message = _('Task successfully deleted')
     title = _('Deleting a task')
-    login_url = reverse_lazy('login')
 
     def dispatch(self, request, *args, **kwargs):
         """

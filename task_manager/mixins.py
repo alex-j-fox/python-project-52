@@ -2,9 +2,12 @@ from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, TemplateView, CreateView, UpdateView, \
     DeleteView, DetailView
+
+LOGIN_URL = reverse_lazy('login')
 
 
 class AuthAndProfileOwnershipMixin(UserPassesTestMixin):
@@ -58,24 +61,29 @@ class CustomLoginRequiredMixin(LoginRequiredMixin):
 
 
 class CustomIndexView(CustomLoginRequiredMixin, TemplateView):
-    pass
+    login_url = LOGIN_URL
 
 
 class CustomCreateView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
                        CreateView):
-    pass
+    action = _('Create')
+    login_url = LOGIN_URL
 
 
 class CustomUpdateView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
                        UpdateView):
-    pass
+    action = _('Change')
+    login_url = LOGIN_URL
+
+    def get_redirect_url(self):
+        return self.login_url
 
 
 class CustomDeleteView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
                        DeleteView):
-    pass
+    login_url = LOGIN_URL
 
 
 class CustomDetailView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
                        DetailView):
-    pass
+    login_url = LOGIN_URL

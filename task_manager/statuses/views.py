@@ -15,7 +15,6 @@ from task_manager.statuses.models import Status
 # class IndexView(CustomLoginRequiredMixin, TemplateView):
 class IndexView(CustomIndexView):
     template_name = 'statuses/index.html'
-    login_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs):
         """
@@ -33,8 +32,6 @@ class StatusCreateView(CustomCreateView):
     success_url = reverse_lazy('statuses_index')
     success_message = _('Status successfully created')
     title = _('Create status')
-    action = _('Create')
-    login_url = reverse_lazy('login')
 
 
 class StatusUpdateView(CustomUpdateView):
@@ -44,11 +41,6 @@ class StatusUpdateView(CustomUpdateView):
     success_url = reverse_lazy('statuses_index')
     success_message = _('Status successfully updated')
     title = _('Change status')
-    action = _('Change')
-    login_url = reverse_lazy('login')
-
-    def get_redirect_url(self):
-        return self.login_url
 
 
 class StatusDeleteView(CustomDeleteView):
@@ -58,7 +50,6 @@ class StatusDeleteView(CustomDeleteView):
     success_message = _('Status successfully deleted')
     error_message = _('Cannot delete status because it is in use')
     title = _('Deleting a status')
-    login_url = reverse_lazy('login')
 
     def post(self, request, *args, **kwargs):
         """

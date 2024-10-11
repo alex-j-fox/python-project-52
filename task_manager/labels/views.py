@@ -14,7 +14,6 @@ from task_manager.mixins import (CustomIndexView,
 
 class IndexView(CustomIndexView):
     template_name = 'labels/index.html'
-    login_url = reverse_lazy('login')
 
     def get_context_data(self, **kwargs):
         """
@@ -32,8 +31,6 @@ class LabelCreateView(CustomCreateView):
     success_url = reverse_lazy('labels_index')
     success_message = _('Label successfully created')
     title = _('Create label')
-    action = _('Create')
-    login_url = reverse_lazy('login')
 
 
 class LabelUpdateView(CustomUpdateView):
@@ -43,11 +40,6 @@ class LabelUpdateView(CustomUpdateView):
     success_url = reverse_lazy('labels_index')
     success_message = _('Label successfully updated')
     title = _('Change label')
-    action = _('Change')
-    login_url = reverse_lazy('login')
-
-    def get_redirect_url(self):
-        return self.login_url
 
 
 class LabelDeleteView(CustomDeleteView):
@@ -57,7 +49,6 @@ class LabelDeleteView(CustomDeleteView):
     success_message = _('Label successfully deleted')
     error_message = _('Cannot delete label because it is in use')
     title = _('Deleting a label')
-    login_url = reverse_lazy('login')
 
     def post(self, request, *args, **kwargs):
         """
