@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import ProtectedError
 from django.utils.translation import gettext_lazy as _
 
 
@@ -27,10 +26,3 @@ class Task(models.Model):
 
     def __str__(self):
         return self.name
-
-    def delete(self, *args, **kwargs):
-        if Task.objects.filter(status=self.pk).exists():
-            raise ProtectedError("Cannot delete status because it is in use",
-                                 Task.objects.filter(status=self.pk))
-
-        super().delete(*args, **kwargs)
