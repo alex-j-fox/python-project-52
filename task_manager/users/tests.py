@@ -5,6 +5,19 @@ from django.urls import reverse
 User = get_user_model()
 
 
+class UserIndexViewTest(TestCase):
+    def test_user_index_view_get(self):
+        """
+        Проверка GET-запроса на странице списка пользователей.
+
+        Страница должна быть доступной (код 200), должен использоваться правильный
+        шаблон (список пользователей).
+        """
+        response = self.client.get(reverse('users_index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/index.html')
+
+
 class UserCreateViewTest(TestCase):
     def test_user_create_view_get(self):
         """

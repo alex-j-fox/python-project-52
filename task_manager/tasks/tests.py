@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
 
+from task_manager.labels.models import Label
 from task_manager.statuses.models import Status
 from task_manager.tasks.forms import TaskForm
 from task_manager.tasks.models import Task
@@ -23,9 +24,21 @@ class BaseTestCase(TestCase):
         self.status = Status.objects.create(name='Test status')
         self.author = self.user
         self.executor = User.objects.create_user(username='executor', password='12345')
+        self.label = Label.objects.create(name='Test label')
 
 
 class UnauthorizedCRUDTest(TestCase):
+
+    def test_unauthorized_index_view(self):
+        """
+        Проверка доступности страницы задач без авторизации.
+
+        Страница должна быть доступна только авторизованным пользователям.
+        Неавторизованный пользователь перенаправляется на страницу входа с кодом 302.
+        """
+        response = self.client.get(reverse('tasks_index'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
 
     def test_unauthorized_create(self):
         """
@@ -64,6 +77,19 @@ class UnauthorizedCRUDTest(TestCase):
         self.assertRedirects(response, reverse('login'))
 
 
+class TasksIndexViewTest(BaseTestCase):
+    def test_tasks_index_view(self):
+        """
+        Проверка GET-запроса на странице задач.
+
+        Страница должна быть доступной (код 200), должен использоваться правильный
+        шаблон (список задач).
+        """
+        response = self.client.get(reverse('tasks_index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'tasks/index.html')
+
+
 class TasksCreateViewTest(BaseTestCase):
     def test_tasks_create_view_get(self):
         """
@@ -90,7 +116,7 @@ class TasksCreateViewTest(BaseTestCase):
             'status': self.status.id,
             'author': self.author,
             'executor': self.executor,
-            # 'labels': ''
+            'labels': self.label.id
         }
         self.assertEqual(Task.objects.count(), 0)
         response = self.client.post(reverse('tasks_create'), data)
@@ -133,7 +159,7 @@ class TasksCreateViewTest(BaseTestCase):
             'status': self.status.id,
             'author': self.author,
             'executor': self.executor,
-            # 'labels': 1
+            'labels': self.label.id
         }
         data2 = {
             'name': 'Test task',
@@ -141,7 +167,7 @@ class TasksCreateViewTest(BaseTestCase):
             'status': self.status.id,
             'author': self.author,
             'executor': '',
-            # 'labels': 1
+            'labels': ''
         }
         self.assertEqual(Task.objects.count(), 0)
         self.client.post(reverse('tasks_create'), data1)
@@ -161,7 +187,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'status': self.status.id,
             'author': self.author,
             'executor': self.executor,
-            # 'labels': 1
+            'labels': self.label.id
         })
         self.task = Task.objects.first()
 
@@ -191,6 +217,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'status': Status.objects.create(name='New test status').id,
             'author': self.author,
             'executor': self.executor,
+            'labels': self.label.id
         }
         self.assertEqual(Task.objects.count(), 1)
         response = self.client.post(
@@ -247,6 +274,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'author': self.author,
             'executor': User.objects.create_user(username='new_worker',
                                                  password='12345'),
+            'labels': self.label.id
         }
         self.assertEqual(Task.objects.count(), 1)
         response = self.client.post(reverse('tasks_create'), data_second)
@@ -260,7 +288,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'status': self.status.id,
             'author': self.author,
             'executor': self.executor,
-            # 'labels': 1
+            'labels': ''
         }
         response = self.client.post(
             reverse('tasks_update', kwargs={'pk': self.task.pk}), data_first)
@@ -279,7 +307,7 @@ class TaskDeleteViewTest(BaseTestCase):
             'status': self.status.id,
             'author': self.author,
             'executor': self.executor,
-            # 'labels': 1
+            'labels': self.label.id
         })
         self.task = Task.objects.first()
 
@@ -320,7 +348,7 @@ class TaskDetailViewTest(BaseTestCase):
             'status': self.status.id,
             'author': self.author,
             'executor': self.executor,
-            # 'labels': 1
+            'labels': self.label.id
         })
         self.task = Task.objects.first()
 

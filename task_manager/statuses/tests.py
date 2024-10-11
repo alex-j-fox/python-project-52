@@ -21,6 +21,16 @@ class BaseTestCase(TestCase):
 
 
 class UnauthorizedCRUDTest(TestCase):
+    def test_unauthorized_index_view(self):
+        """
+        Проверка доступности страницы со списком статусов без авторизации.
+
+        Страница должна быть доступна только авторизованным пользователям.
+        Неавторизованный пользователь перенаправляется на страницу входа с кодом 302.
+        """
+        response = self.client.get(reverse('statuses_index'))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('login'))
 
     def test_unauthorized_create(self):
         """
@@ -54,6 +64,19 @@ class UnauthorizedCRUDTest(TestCase):
         response = self.client.get(reverse('statuses_delete', args=[1]))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('login'))
+
+
+class StatusesIndexViewTest(BaseTestCase):
+    def test_statuses_index_view(self):
+        """
+        Проверка GET-запроса на странице со списком статусов.
+
+        Страница должна быть доступной (код 200), должен использоваться правильный
+        шаблон (с формой создания статуса).
+        """
+        response = self.client.get(reverse('statuses_index'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'statuses/index.html')
 
 
 class StatusesCreateViewTest(BaseTestCase):
