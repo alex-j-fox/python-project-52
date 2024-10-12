@@ -324,7 +324,7 @@ msgstr "Удалить"
 
 #: templates/login.html:10
 msgid "Sign in"
-msgstr "Войти"
+msgstr "Войти"
 
 #: templates/tasks/index.html:16
 msgid "Show"
