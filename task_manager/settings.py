@@ -202,7 +202,7 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
 
 ROLLBAR = {
-    'access_token': os.getenv('ROLLBAR_TOKEN'),
+    'access_token': os.getenv('ROLLBAR_ACCESS_TOKEN'),
     'environment': 'development' if DEBUG else 'production',
     'code_version': '1.0',
     'root': BASE_DIR,

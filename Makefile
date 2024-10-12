@@ -36,4 +36,7 @@ lint:
 test:
 	poetry run pytest task_manager
 
+test-coverage:
+	poetry run pytest --cov=task_manager --cov-report=xml
+
 check: selfcheck lint test
