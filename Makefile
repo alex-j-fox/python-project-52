@@ -1,4 +1,4 @@
-.PHONY: install migrate convert start selfcheck lint check 
+.PHONY: install makemigrations migrate convert build dev makemessages compilemessages start selfcheck lint test test-coverage check 
 
 MANAGE := poetry run python manage.py
 
@@ -11,17 +11,22 @@ makemigrations:
 migrate:
 	$(MANAGE) migrate
 
-dev:
-	$(MANAGE) runserver localhost:8030
-
 convert:
 	$(MANAGE) collectstatic --no-input
+
+build: install convert migrate
+
+dev:
+	$(MANAGE) runserver localhost:8030
 
 makemessages:
 	$(MANAGE) makemessages -l ru
 
 compilemessages:
 	$(MANAGE) compilemessages --ignore=.venv
+
+create_superuser:
+	$(MANAGE) createsuperuser
 
 PORT ?= 8000
 start:
