@@ -22,11 +22,11 @@ class LogoutUserView(LogoutView):
         Выход пользователя из системы.
 
         Выполняет выход пользователя из системы.
-        Выводит сообщение об успешном выходе и перенаправляет на страницу входа.
+        Выводит сообщение об успешном выходе и перенаправляет на главную страницу.
         """
         logout(request)
         messages.info(request, _('You are logged out'))
-        return redirect('login')
+        return redirect('index')
 
 
 def handler404(request, exception):
