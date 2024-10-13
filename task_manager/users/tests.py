@@ -62,7 +62,7 @@ class UserCreateViewTest(TestCase):
         self.assertEqual(User.objects.count(), 0)
         response = self.client.post(reverse('users_create'), data)
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('users_index'))
+        self.assertRedirects(response, reverse('login'))
         self.assertEqual(User.objects.count(), 1)
 
     def test_user_create_view_post_invalid(self):

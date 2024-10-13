@@ -26,7 +26,7 @@ class IndexView(TemplateView):
 class UserCreateView(SuccessMessageFormContextMixin, CreateView):
     template_name = 'users/create.html'
     form_class = UserForm
-    success_url = reverse_lazy('users_index')
+    success_url = reverse_lazy('login')
     success_message = _('User successfully registered')
     model = get_user_model()
     title = _('Registration')
