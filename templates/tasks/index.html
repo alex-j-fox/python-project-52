@@ -6,15 +6,14 @@
 
   <h1 class="my-4">{% trans 'Tasks' %}</h1>
   {% trans 'Create task' as button_value %}
-  {% bootstrap_button button_value button_class="btn-primary mb-3" type="link" href="create" %}
+  {% bootstrap_button button_value button_class="btn-primary mb-3" href="create" %}
 
   <div class="card mb-3">
     <div class="card-body bg-light">
-      <form action="{% url 'tasks_index' %}" method="post">
-        {% csrf_token %}
-        {% bootstrap_form form %}
+      <form action="{% url 'tasks_index' %}" method="get">
+        {% bootstrap_form filter.form %}
         {% trans 'Show' as button_value %}
-        {% bootstrap_button button_value button_class="btn-primary" type="submit" %}
+        {% bootstrap_button button_value button_class="btn-primary" %}
       </form>
     </div>
   </div>

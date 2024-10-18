@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 
+{% load i18n %}
+
 {% block content %}
 
-  <h1 class="my-4">{{ title }}</h1>
+  <h1 class="my-4">{% trans 'Registration' %}</h1>
   <form action="{% url 'users_create' %}" method="post">
-    {% include 'form.html' %}
+    {% trans 'Register' as action %}
+    {% include 'form.html' with action=action %}
   </form>
 
 {% endblock %}

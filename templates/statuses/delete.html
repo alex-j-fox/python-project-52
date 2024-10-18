@@ -4,7 +4,7 @@
 
 {% block content %}
 
-  <h1 class="my-4">{{ title }}</h1>
+  <h1 class="my-4">{% trans 'Deleting a status' %}</h1>
   <p>{% trans "Are you sure you want to delete" %} {{ status.name }}?</p>
   
   <form method="post">

@@ -1,10 +1,13 @@
 {% extends 'base.html' %}
 
+{% load i18n %}
+
 {% block content %}
 
-  <h1 class="my-4">{{ title }}</h1>
+  <h1 class="my-4">{% translate 'Change status' %}</h1>
   <form action="{% url 'statuses_update' status.id %}" method="post">
-    {% include 'form.html' %}
+    {% trans 'Change' as action %}
+    {% include 'form.html' with action=action %}
   </form>
 
 {% endblock %}

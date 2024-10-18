@@ -4,9 +4,9 @@
 
 {% block content %}
 
-  <h1 class="my-4">{{ title }}</h1>
+  <h1 class="my-4">{% trans 'Deleting a task' %}</h1>
   <p>{% trans "Are you sure you want to delete" %} {{ task.name }}?</p>
-  
+
   <form method="post">
     {% csrf_token %}
     {% trans 'Yes, delete' as button_value %}
