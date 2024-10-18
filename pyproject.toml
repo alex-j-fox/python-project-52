@@ -17,6 +17,7 @@ python-dotenv = "^1.0.0"
 dj-database-url = "^2.2.0"
 whitenoise = {extras = ["brotli"], version = "^6.7.0"}
 rollbar = "^0.16.3"
+django-filter = "^24.3"
 
 [tool.poetry.group.dev.dependencies]
 flake8 = "^6.0.0"
