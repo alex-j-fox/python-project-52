@@ -29,7 +29,7 @@ Clone the project:
 
     git clone https://github.com/alex-j-fox/python-project-52.git && cd python-project-52
 
-Create .env file in the root folder and add following variables:
+Create .env file in the root folder and add following variables, see example [here](./.env.sample):
 
     SECRET_KEY = '{your secret key}' // Django secret key
 
