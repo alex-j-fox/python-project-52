@@ -1,8 +1,9 @@
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AbstractUser
 
 
-def get_full_name(self):
-    return f'{self.first_name} {self.last_name}'.strip()
+class User(AbstractUser):
+    def __str__(self):
+        return self.get_full_name()
 
-
-get_user_model().add_to_class('__str__', get_full_name)
+    def get_full_name(self):
+        return f'{self.first_name} {self.last_name}'

@@ -1,7 +1,8 @@
 from django.contrib import messages
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
+from django_filters.views import FilterView
 
 from task_manager.mixins import (CustomIndexView,
                                  CustomCreateView,
@@ -10,50 +11,21 @@ from task_manager.mixins import (CustomIndexView,
                                  CustomDeleteView)
 from task_manager.tasks.forms import TaskForm, TaskFilterForm
 from task_manager.tasks.models import Task
-from task_manager.tasks.utils import filter_tasks
 
 
-class IndexView(CustomIndexView):
+class IndexView(FilterView, CustomIndexView):
     template_name = 'tasks/index.html'
-    form_class = TaskFilterForm
-
-    def get_context_data(self, **kwargs):
-        """
-        Передача контекста в шаблон с задачами и формой фильтрации.
-        """
-        context = super().get_context_data(**kwargs)
-        context['tasks'] = Task.objects.all()
-        context['form'] = self.form_class()
-        return context
-
-    def post(self, request, *args, **kwargs):
-        """
-        Обработка формы фильтра.
-
-        Если применяются фильтры, функция возвращает отфильтрованные задачи.
-        Иначе функция возвращает все задачи.
-        """
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            tasks = filter_tasks(form, request)
-            return render(request,
-                          self.template_name,
-                          context={'tasks': tasks,
-                                   'form': form})
-        else:
-            return render(request,
-                          self.template_name,
-                          context={'tasks': Task.objects.all(),
-                                   'form': form})
+    model = Task
+    filterset_class = TaskFilterForm
+    context_object_name = 'tasks'
 
 
 class TaskCreateView(CustomCreateView):
     template_name = 'tasks/create.html'
-    form_class = TaskForm
     model = Task
+    form_class = TaskForm
     success_url = reverse_lazy('tasks_index')
     success_message = _('Task successfully created')
-    title = _('Create task')
 
     def form_valid(self, form):
         """
@@ -72,7 +44,6 @@ class TaskDetailView(CustomDetailView):
     pk_url_kwarg = 'pk'
     context_object_name = 'task'
     form_class = TaskForm
-    title = _('View a task')
 
 
 class TaskUpdateView(CustomUpdateView):
@@ -81,7 +52,6 @@ class TaskUpdateView(CustomUpdateView):
     model = Task
     success_url = reverse_lazy('tasks_index')
     success_message = _('Task successfully updated')
-    title = _('Change task')
 
 
 class TaskDeleteView(CustomDeleteView):
@@ -89,7 +59,6 @@ class TaskDeleteView(CustomDeleteView):
     model = Task
     success_url = reverse_lazy('tasks_index')
     success_message = _('Task successfully deleted')
-    title = _('Deleting a task')
 
     def dispatch(self, request, *args, **kwargs):
         """

@@ -1,4 +1,3 @@
-from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from django.urls import reverse
 
@@ -6,8 +5,7 @@ from task_manager.labels.models import Label
 from task_manager.statuses.models import Status
 from task_manager.tasks.forms import TaskForm
 from task_manager.tasks.models import Task
-
-User = get_user_model()
+from task_manager.users.models import User
 
 
 class BaseTestCase(TestCase):
@@ -69,10 +67,7 @@ class UnauthorizedCRUDTest(TestCase):
         Страница должна быть доступна только авторизованным пользователям.
         Неавторизованный пользователь перенаправляется на страницу входа с кодом 302
         """
-        print('testing unauthorized delete')
-        print('reverse tasks_delete:', reverse('tasks_delete', args=[1]))
         response = self.client.get(reverse('tasks_delete', args=[1]))
-        print('response:', response)
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('login'))
 
@@ -82,8 +77,8 @@ class TasksIndexViewTest(BaseTestCase):
         """
         Проверка GET-запроса на странице задач.
 
-        Страница должна быть доступной (код 200), должен использоваться правильный
-        шаблон (список задач).
+        Страница должна быть доступной (код 200), должен использоваться шаблон со
+        списком задач.
         """
         response = self.client.get(reverse('tasks_index'))
         self.assertEqual(response.status_code, 200)
@@ -95,8 +90,8 @@ class TasksCreateViewTest(BaseTestCase):
         """
         Проверка GET-запроса на странице создания задачи.
 
-        Страница должна быть доступной (код 200), должен использоваться правильный
-        шаблон (с формой создания задачи).
+        Страница должна быть доступной (код 200), должен использоваться шаблон с формой
+        создания задачи.
         """
         response = self.client.get(reverse('tasks_create'))
         self.assertEqual(response.status_code, 200)
@@ -115,7 +110,7 @@ class TasksCreateViewTest(BaseTestCase):
             'description': 'Test description',
             'status': self.status.id,
             'author': self.author,
-            'executor': self.executor,
+            'executor': self.executor.id,
             'labels': self.label.id
         }
         self.assertEqual(Task.objects.count(), 0)
@@ -158,7 +153,7 @@ class TasksCreateViewTest(BaseTestCase):
             'description': 'Test description',
             'status': self.status.id,
             'author': self.author,
-            'executor': self.executor,
+            'executor': self.executor.id,
             'labels': self.label.id
         }
         data2 = {
@@ -186,7 +181,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'description': 'Test description',
             'status': self.status.id,
             'author': self.author,
-            'executor': self.executor,
+            'executor': self.executor.id,
             'labels': self.label.id
         })
         self.task = Task.objects.first()
@@ -198,7 +193,7 @@ class TasksUpdateViewTest(BaseTestCase):
         Страница должна быть доступной (код 200), должен использоваться шаблон с формой
         редактирования задачи.
         """
-        response = self.client.get(reverse('tasks_update', kwargs={'pk': self.task.pk}))
+        response = self.client.get(reverse('tasks_update', kwargs={'pk': self.task.id}))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'tasks/update.html')
 
@@ -216,7 +211,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'description': 'Test description updated',
             'status': Status.objects.create(name='New test status').id,
             'author': self.author,
-            'executor': self.executor,
+            'executor': self.executor.id,
             'labels': self.label.id
         }
         self.assertEqual(Task.objects.count(), 1)
@@ -236,7 +231,6 @@ class TasksUpdateViewTest(BaseTestCase):
         При попытке изменить данные на невалидные значения страница должна быть
         доступна (код 200), должен использоваться шаблон с формой редактирования задачи,
         количество записей в базе данных не должно изменяться.
-        Должно появляться сообщение об ошибке.
         Данные записи в базе данных не должны измениться.
         """
         data = {
@@ -263,7 +257,6 @@ class TasksUpdateViewTest(BaseTestCase):
         Создаем вторую задачу. Пытаемся изменить имя на имя первой задачи.
         Страница должна быть доступной (код 200), должен использоваться шаблон с формой
         редактирования задачи, количество записей в базе данных не должно изменяться.
-        Должно появляться сообщение об ошибке.
         Имя задачи не должно измениться.
         """
         new_status = Status.objects.create(name='New test status')
@@ -273,7 +266,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'status': new_status.id,
             'author': self.author,
             'executor': User.objects.create_user(username='new_worker',
-                                                 password='12345'),
+                                                 password='12345').id,
             'labels': self.label.id
         }
         self.assertEqual(Task.objects.count(), 1)
@@ -287,7 +280,7 @@ class TasksUpdateViewTest(BaseTestCase):
             'description': 'Test description new',
             'status': self.status.id,
             'author': self.author,
-            'executor': self.executor,
+            'executor': self.executor.id,
             'labels': ''
         }
         response = self.client.post(
@@ -306,7 +299,7 @@ class TaskDeleteViewTest(BaseTestCase):
             'description': 'Test description',
             'status': self.status.id,
             'author': self.author,
-            'executor': self.executor,
+            'executor': self.executor.id,
             'labels': self.label.id
         })
         self.task = Task.objects.first()
@@ -347,7 +340,7 @@ class TaskDetailViewTest(BaseTestCase):
             'description': 'Test description',
             'status': self.status.id,
             'author': self.author,
-            'executor': self.executor,
+            'executor': self.executor.id,
             'labels': self.label.id
         })
         self.task = Task.objects.first()

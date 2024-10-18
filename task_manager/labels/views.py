@@ -14,14 +14,8 @@ from task_manager.mixins import (CustomIndexView,
 
 class IndexView(CustomIndexView):
     template_name = 'labels/index.html'
-
-    def get_context_data(self, **kwargs):
-        """
-        Передача контекста в шаблон.
-        """
-        context = super().get_context_data(**kwargs)
-        context['labels'] = Label.objects.all()
-        return context
+    model = Label
+    context_object_name = 'labels'
 
 
 class LabelCreateView(CustomCreateView):
@@ -30,7 +24,6 @@ class LabelCreateView(CustomCreateView):
     model = Label
     success_url = reverse_lazy('labels_index')
     success_message = _('Label successfully created')
-    title = _('Create label')
 
 
 class LabelUpdateView(CustomUpdateView):
@@ -39,7 +32,6 @@ class LabelUpdateView(CustomUpdateView):
     model = Label
     success_url = reverse_lazy('labels_index')
     success_message = _('Label successfully updated')
-    title = _('Change label')
 
 
 class LabelDeleteView(CustomDeleteView):
@@ -48,7 +40,6 @@ class LabelDeleteView(CustomDeleteView):
     success_url = reverse_lazy('labels_index')
     success_message = _('Label successfully deleted')
     error_message = _('Cannot delete label because it is in use')
-    title = _('Deleting a label')
 
     def post(self, request, *args, **kwargs):
         """

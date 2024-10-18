@@ -4,7 +4,7 @@
 
 {% block content %}
 
-  <h1 class="my-4">{% trans 'Update label' %}</h1>
+  <h1 class="my-4">{% trans 'Change label' %}</h1>
   <form action="{% url 'labels_update' label.id %}" method="post">
     {% trans 'Update' as action %}
     {% include 'form.html' with action=action %}
