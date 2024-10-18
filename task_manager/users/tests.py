@@ -1,9 +1,8 @@
-from django.contrib.auth import get_user_model
 from django.test import Client
 from django.test.testcases import TestCase
 from django.urls import reverse
 
-User = get_user_model()
+from task_manager.users.models import User
 
 
 class BaseTestCase(TestCase):

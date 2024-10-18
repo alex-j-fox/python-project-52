@@ -1,11 +1,15 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
+from django.db.models import ProtectedError
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils.translation import gettext_lazy as _
-from django.views.generic import FormView, TemplateView, CreateView, UpdateView, \
-    DeleteView, DetailView
+from django.views.generic import (ListView,
+                                  CreateView,
+                                  UpdateView,
+                                  DeleteView,
+                                  DetailView)
 
 LOGIN_URL = reverse_lazy('login')
 
@@ -36,21 +40,9 @@ class AuthAndProfileOwnershipMixin(UserPassesTestMixin):
         return self.request.user.pk == user_id
 
 
-class SuccessMessageFormContextMixin(SuccessMessageMixin, FormView):
-    title = ''
-    action = ''
-
-    def get_context_data(self, **kwargs):
-        """
-        Передача данных (название формы, текст кнопки) в контекст
-        """
-        context = super().get_context_data(**kwargs)
-        context['title'] = self.title
-        context['action'] = self.action
-        return context
-
-
 class CustomLoginRequiredMixin(LoginRequiredMixin):
+    login_url = LOGIN_URL
+
     def handle_no_permission(self):
         """
         Обработка ошибок для неавторизованного пользователя.
@@ -60,30 +52,47 @@ class CustomLoginRequiredMixin(LoginRequiredMixin):
         return redirect(self.login_url)
 
 
-class CustomIndexView(CustomLoginRequiredMixin, TemplateView):
-    login_url = LOGIN_URL
+class ProtectedErrorHandlerMixin:
+    protected_error_message = None
+    redirect_url = None
+
+    def post(self, request, *args, **kwargs):
+        """
+        Обработка ошибок для защищенных ресурсов.
+        """
+        try:
+            return super().post(request, *args, **kwargs)  # noqa
+        except ProtectedError:
+            messages.error(request, self.protected_error_message)
+            return redirect(self.redirect_url)
 
 
-class CustomCreateView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+class CustomIndexView(CustomLoginRequiredMixin,
+                      ListView):
+    pass
+
+
+class CustomCreateView(CustomLoginRequiredMixin,
+                       SuccessMessageMixin,
                        CreateView):
-    action = _('Create')
-    login_url = LOGIN_URL
+    pass
 
 
-class CustomUpdateView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+class CustomUpdateView(CustomLoginRequiredMixin,
+                       SuccessMessageMixin,
                        UpdateView):
-    action = _('Change')
-    login_url = LOGIN_URL
-
     def get_redirect_url(self):
         return self.login_url
 
 
-class CustomDeleteView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+class CustomDeleteView(CustomLoginRequiredMixin,
+                       SuccessMessageMixin,
                        DeleteView):
-    login_url = LOGIN_URL
+    pass
 
 
-class CustomDetailView(CustomLoginRequiredMixin, SuccessMessageFormContextMixin,
+class CustomDetailView(ProtectedErrorHandlerMixin,
+                       CustomLoginRequiredMixin,
+                       SuccessMessageMixin,
                        DetailView):
-    login_url = LOGIN_URL
+    pass
