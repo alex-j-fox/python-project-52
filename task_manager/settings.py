@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'task_manager.statuses.apps.StatusesConfig',
     'task_manager.tasks.apps.TasksConfig',
     'task_manager.labels.apps.LabelsConfig',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -52,8 +53,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.middleware.locale.LocaleMiddleware',
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
-
+    # 'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
+    "task_manager.rollbar_middleware.CustomRollbarNotifierMiddleware",
 ]
 
 ROOT_URLCONF = 'task_manager.urls'
@@ -115,6 +116,8 @@ AUTH_PASSWORD_VALIDATORS = [
     #     'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     # },
 ]
+
+AUTH_USER_MODEL = 'users.User'
 
 LOGIN_REDIRECT_URL = 'index'
 LOGIN_URL = 'login'
