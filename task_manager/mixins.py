@@ -56,12 +56,12 @@ class ProtectedErrorHandlerMixin:
     protected_error_message = None
     redirect_url = None
 
-    def post(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
         """
         Обработка ошибок для защищенных ресурсов.
         """
         try:
-            return super().post(request, *args, **kwargs)  # noqa
+            return super().dispatch(request, *args, **kwargs)  # noqa
         except ProtectedError:
             messages.error(request, self.protected_error_message)
             return redirect(self.redirect_url)
@@ -85,14 +85,14 @@ class CustomUpdateView(CustomLoginRequiredMixin,
         return self.login_url
 
 
-class CustomDeleteView(CustomLoginRequiredMixin,
+class CustomDeleteView(ProtectedErrorHandlerMixin,
+                       CustomLoginRequiredMixin,
                        SuccessMessageMixin,
                        DeleteView):
     pass
 
 
-class CustomDetailView(ProtectedErrorHandlerMixin,
-                       CustomLoginRequiredMixin,
+class CustomDetailView(CustomLoginRequiredMixin,
                        SuccessMessageMixin,
                        DetailView):
     pass
