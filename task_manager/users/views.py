@@ -43,15 +43,17 @@ class UserDeleteView(AuthAndProfileOwnershipMixin,
     success_url = reverse_lazy('users_index')
     success_message = _('User successfully deleted')
 
-    def dispatch(self, request, *args, **kwargs):
+    def form_valid(self, form):
         """
-        Ограничение удаления пользователя, связанного с задачей.
+        Проверяет возможность удаления пользователя.
 
-        Перехватывает исключение ProtectedError, перенаправляет на страницу с
-        пользователями и выдает сообщение об ошибке.
+        Если пользователь связан с задачей, его невозможно удалить.
+        В этом случае пользователь перенаправляется на страницу со списком
+        пользователей с сообщением об ошибке.
         """
         try:
-            return super().dispatch(request, *args, **kwargs)
+            return super().form_valid(form)
         except ProtectedError:
-            messages.error(request, _('Cannot delete user because it is in use'))
-            return redirect(reverse_lazy('users_index'))
+            messages.error(self.request,
+                           _('Cannot delete user because it is in use'))
+            return redirect(self.success_url)
