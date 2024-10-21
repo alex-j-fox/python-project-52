@@ -65,12 +65,14 @@ class TaskDeleteView(CustomDeleteView):
         Проверка прав на удаление задачи.
 
         Неавторизованный пользователь перенаправляется на страницу входа.
-        Авторизованный пользователь не может удалять задачу, если не является её автором
+        Авторизованный пользователь не может удалять задачу, если не является
+        её автором
         """
-        if not request.user.is_authenticated:
-            return redirect(self.login_url)
-        task = self.get_object()
-        if task.author != request.user:
-            messages.error(request, _('Only the author can delete the task'))
-            return redirect(self.success_url)
-        return super().dispatch(request, *args, **kwargs)
+        response = super().dispatch(request, *args, **kwargs)
+        if response.status_code != 302:
+            task = self.get_object()
+            if task.author != request.user:
+                messages.error(request,
+                               _('Only the author can delete the task'))
+                return redirect(self.success_url)
+        return response
